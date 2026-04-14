@@ -18,10 +18,10 @@
 // IN3 → PB10 (TIM2_CH3)
 // EN  → PA15
 // ------------------------------------------------------------
-#define DRIVER_PIN_IN1      PC6
-#define DRIVER_PIN_IN2      PC7
-#define DRIVER_PIN_IN3      PB10
-#define DRIVER_PIN_EN       PA15
+#define DRIVER_PIN_IN1      PC_6
+#define DRIVER_PIN_IN2      PC_7
+#define DRIVER_PIN_IN3      PB_10
+#define DRIVER_PIN_EN       PA_15
 
 // Power supply voltage (6× AA L91 = 9.0V nominal)
 #define SUPPLY_VOLTAGE      9.0f
@@ -35,7 +35,7 @@
 // MOSI → PB15
 // CS   → PB0  (change if needed)
 // ------------------------------------------------------------
-#define ENCODER_CS_PIN      PB0
+#define ENCODER_CS_PIN      PB_0
 
 // ------------------------------------------------------------
 // BNO085 IMU — I2C1 via STEMMA QT (PB6=SCL, PB7=SDA)
@@ -53,7 +53,8 @@
 #define BATT_PIN            A0
 #define VDIV_RATIO          4.03f
 #define ADC_REF_VOLTAGE     3.3f
-#define ADC_RESOLUTION      4096.0f     // 12-bit ADC
+#define BATT_ADC_COUNTS     4096.0f     // 12-bit ADC (renamed from ADC_RESOLUTION to avoid
+                                        // clash with STM32duino core define of same name)
 #define BATT_CUTOFF_VOLTS   7.2f        // 1.2V × 6 cells
 #define BATT_WARN_VOLTS     7.8f        // 1.3V × 6 cells
 

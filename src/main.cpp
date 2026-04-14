@@ -106,9 +106,9 @@ void setup() {
 
     // ── Encoder initialisation ────────────────────────────────
     // Use SPI2 (PB13/PB14/PB15) — hardware SPI on Feather F405
-    SPI.setMOSI(PB15);
-    SPI.setMISO(PB14);
-    SPI.setSCLK(PB13);
+    SPI.setMOSI(PB_15);
+    SPI.setMISO(PB_14);
+    SPI.setSCLK(PB_13);
     encoder.init();
 
     Serial.print("[ENC] Initial encoder angle: ");

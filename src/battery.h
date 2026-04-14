@@ -45,7 +45,7 @@ float batt_read_voltage() {
     float adc_avg = (float)sum / 16.0f;
 
     // Convert ADC reading to voltage at pin
-    float v_pin = (adc_avg / ADC_RESOLUTION) * ADC_REF_VOLTAGE;
+    float v_pin = (adc_avg / BATT_ADC_COUNTS) * ADC_REF_VOLTAGE;
 
     // Scale back through voltage divider
     float v_batt = v_pin * VDIV_RATIO;
