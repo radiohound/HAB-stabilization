@@ -160,7 +160,7 @@ float hc_get_heading_error()   { return _heading_error; }
 
 void hc_reset_integrator() {
     _integral   = 0.0f;
-    _prev_error = 0.0f;
+    _prev_error = _heading_error;  // preserve current error so derivative doesn't spike on re-entry
     #if DEBUG_LEVEL >= 2
     Serial.println("[HC] Integrator reset");
     #endif

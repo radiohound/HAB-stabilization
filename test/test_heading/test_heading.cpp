@@ -179,9 +179,10 @@ void test_deadband_prev_error_updated(void) {
 // ============================================================
 
 void test_output_clamped_positive(void) {
-    // 180° error should saturate the output at +VOLTAGE_LIMIT
-    hc_init(180.0f);
-    float torque = hc_update(0.0f, 0.0f);  // error = +180°
+    // 170° error (unambiguously positive) should saturate the output at +VOLTAGE_LIMIT.
+    // 180° is avoided because _angle_diff's fmod snaps that boundary to -180°.
+    hc_init(170.0f);
+    float torque = hc_update(0.0f, 0.0f);  // error = +170°
     TEST_ASSERT_FLOAT_WITHIN(0.001f, VOLTAGE_LIMIT, torque);
 }
 

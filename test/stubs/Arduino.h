@@ -20,7 +20,7 @@ struct SerialStub {
     void begin(int) {}
     template<typename T>         void print(T)      {}
     template<typename T>         void println(T)    {}
-    template<typename T, int N>  void print(T, int) {}
+    template<typename T>         void print(T, int) {}
     void println() {}
 };
 extern SerialStub Serial;
