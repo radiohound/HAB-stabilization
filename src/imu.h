@@ -22,6 +22,10 @@ bool imu_update();
 // falls back to Game Rotation Vector (gyro-only) above MAG_CUTOFF_ALT_M
 float imu_get_yaw_deg();
 
+// Reset the health watchdog timer — call after any long blocking operation
+// in setup() to prevent a false-unhealthy on the first update cycle.
+void imu_reset_health_timer();
+
 // Raw gyro Z-axis rate in degrees/second (positive = CW from above)
 float imu_get_yaw_rate_deg_s();
 
@@ -57,7 +61,7 @@ static float _quat_to_yaw(float qr, float qi, float qj, float qk) {
     float sinYaw = 2.0f * (qr * qk + qi * qj);
     float cosYaw = 1.0f - 2.0f * (qj * qj + qk * qk);
     float yaw_rad = atan2f(sinYaw, cosYaw);
-    float yaw_deg = yaw_rad * 180.0f / PI;
+    float yaw_deg = -(yaw_rad * 180.0f / PI);  // negate: CW positive
     // Normalise to 0-360
     if (yaw_deg < 0.0f) yaw_deg += 360.0f;
     return yaw_deg;
@@ -65,25 +69,27 @@ static float _quat_to_yaw(float qr, float qi, float qj, float qk) {
 
 static void _enable_reports() {
     if (_gyro_only_mode) {
-        // Game Rotation Vector — gyro-dominant, no magnetometer
-        _bno.enableReport(SH2_GAME_ROTATION_VECTOR, 10000); // 100Hz
+        _bno.enableReport(SH2_GAME_ROTATION_VECTOR, 10000);
         #if DEBUG_LEVEL >= 2
         Serial.println("[IMU] Mode: Game Rotation Vector (gyro-only)");
         #endif
     } else {
-        // Rotation Vector — full fusion including magnetometer
-        _bno.enableReport(SH2_ROTATION_VECTOR, 10000);       // 100Hz
+        _bno.enableReport(SH2_ROTATION_VECTOR, 10000);
         #if DEBUG_LEVEL >= 2
         Serial.println("[IMU] Mode: Rotation Vector (fused with mag)");
         #endif
     }
-    // Always enable gyroscope for rate data
-    _bno.enableReport(SH2_GYROSCOPE_CALIBRATED, 10000);
+    delay(50);
+    if (!_bno.enableReport(SH2_GYROSCOPE_CALIBRATED, 10000)) {
+        Serial.println("[IMU] WARN: Gyro report enable FAILED");
+    } else {
+        Serial.println("[IMU] Gyro report enabled OK");
+    }
 }
 
 bool imu_init() {
     Wire.begin();
-    Wire.setClock(400000); // 400kHz I2C
+    Wire.setClock(100000);
 
     if (!_bno.begin_I2C(BNO085_ADDR, &Wire)) {
         #if DEBUG_LEVEL >= 1
@@ -92,7 +98,10 @@ bool imu_init() {
         return false;
     }
 
+    _bno.wasReset(); // clear the stale reset flag set by begin_I2C
+    delay(100);
     _enable_reports();
+    delay(500); // let BNO085 queue data before first read — prevents STM32F4 I2C1 clock-stretch hang
     _healthy = true;
     _last_update_ms = millis();  // Bug #2 fix: was 0, causing immediate false-unhealthy at boot
 
@@ -106,6 +115,12 @@ bool imu_update() {
     if (!_healthy) return false;
 
     bool got_data = false;
+
+    if (_bno.wasReset()) {
+        Serial.println("[IMU] Sensor reset — re-enabling reports");
+        _enable_reports();
+        _last_update_ms = millis();
+    }
 
     if (_bno.getSensorEvent(&_sensor_value)) {
         switch (_sensor_value.sensorId) {
@@ -139,13 +154,21 @@ bool imu_update() {
             }
 
             case SH2_GYROSCOPE_CALIBRATED: {
-                // Z-axis angular velocity (rad/s → deg/s)
-                // BNO085 Z-axis points up when flat;
-                // positive = CCW from above in sensor frame.
-                // We negate to get CW positive convention.
                 _yaw_rate_deg_s = -(_sensor_value.un.gyroscope.z
                                     * 180.0f / PI);
-                _gyro_cal = _sensor_value.status & 0x03;
+                uint8_t new_cal = _sensor_value.status & 0x03;
+                if (new_cal != _gyro_cal) {
+                    Serial.print("[IMU] Gyro cal changed: ");
+                    Serial.println(new_cal);
+                }
+                // Temporary: print raw status every 5s to confirm events arriving
+                static uint32_t _gcal_dbg = 0;
+                if (millis() - _gcal_dbg > 5000) {
+                    _gcal_dbg = millis();
+                    Serial.print("[IMU DBG] Gyro event status=");
+                    Serial.println(_sensor_value.status);
+                }
+                _gyro_cal = new_cal;
                 break;
             }
 
@@ -165,6 +188,7 @@ bool imu_update() {
     return got_data;
 }
 
+void imu_reset_health_timer()    { _last_update_ms = millis(); }
 float imu_get_yaw_deg()          { return _yaw_deg; }
 float imu_get_yaw_rate_deg_s()   { return _yaw_rate_deg_s; }
 uint8_t imu_get_mag_cal_status() { return _mag_cal; }

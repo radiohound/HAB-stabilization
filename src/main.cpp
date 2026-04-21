@@ -93,8 +93,8 @@ void setup() {
     Serial.println(" V");
 
     if (_batt_voltage < BATT_CUTOFF_VOLTS) {
-        Serial.println("[MAIN] FATAL: Battery below cutoff. Halting.");
-        while (true) { delay(1000); }
+        Serial.println("[MAIN] WARNING: Battery below cutoff (bench mode).");
+        // while (true) { delay(1000); }  // disabled for bench testing
     }
 
     // ── IMU initialisation ────────────────────────────────────
@@ -176,6 +176,13 @@ void setup() {
     command.add('T', onTarget, "target heading deg");
     command.add('M', onMotor,  "motor");
 
+    // Reset I2C peripheral after motor init — STM32F4 I2C1 can get stuck
+    // during the long blocking FOC alignment sequence
+    Wire.end();
+    delay(50);
+    Wire.begin();
+    Wire.setClock(100000);
+    imu_reset_health_timer();
     _start_ms = millis();
     Serial.println("[MAIN] System ready. Entering control loop.");
     Serial.println("[MAIN] Send 'T<degrees>' to set target heading.");
@@ -187,7 +194,10 @@ void loop() {
     // ── 1. SimpleFOC inner loop (runs as fast as possible) ───
     if (!_motor_disabled) motor.loopFOC();
 
-    // ── 2. Commander (check for serial commands) ──────────────
+    // ── 2. Drain IMU SHTP buffer every loop ───────────────────
+    imu_update();
+
+    // ── 3. Commander (check for serial commands) ──────────────
     command.run();
 
     // ── 3. Outer PID loop at PID_RATE_HZ ─────────────────────
@@ -195,9 +205,8 @@ void loop() {
     if (now_us - _pid_last_us >= (uint32_t)PID_LOOP_PERIOD_US) {
         _pid_last_us = now_us;
 
-        // Update IMU
+        // Update IMU health status
         _imu_ok = imu_is_healthy();
-        imu_update();
 
         // Check altitude for magnetometer reliability
         // (Altitude would come from tracker UART in full implementation.
@@ -235,10 +244,14 @@ void loop() {
 
             if (_batt_voltage < BATT_CUTOFF_VOLTS) {
                 // Critical — stop motor and flag
-                motor.move(0.0f);
-                motor.disable();
-                _motor_disabled = true;  // Bug #5 fix: prevent loopFOC/move after disable
-                Serial.println("[BATT] CRITICAL: Below cutoff. Motor disabled.");
+                // motor.move(0.0f);           // disabled for bench testing (no battery)
+                // motor.disable();
+                // _motor_disabled = true;
+                static bool _bench_batt_warned = false;
+                if (!_bench_batt_warned) {
+                    Serial.println("[BATT] CRITICAL: Below cutoff (bench mode — motor not disabled).");
+                    _bench_batt_warned = true;
+                }
                 // Don't halt — keep telemetry running
             } else if (batt_is_low() && !_low_batt_warned) {
                 _low_batt_warned = true;
