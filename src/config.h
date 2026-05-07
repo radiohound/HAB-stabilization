@@ -21,7 +21,7 @@
 #define DRIVER_PIN_IN1      PC_6
 #define DRIVER_PIN_IN2      PC_7
 #define DRIVER_PIN_IN3      PB_10
-#define DRIVER_PIN_EN       PA_15
+#define DRIVER_PIN_EN       PB_8    // D9 on Feather silkscreen (PA15/SS not exposed)
 
 // Power supply voltage (6× AA L91 = 9.0V nominal)
 #define SUPPLY_VOLTAGE      9.0f

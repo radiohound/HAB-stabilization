@@ -33,7 +33,7 @@
 SimpleFOC IN1  ──► Feather D6   (PC6,  TIM3_CH1)
 SimpleFOC IN2  ──► Feather D5   (PC7,  TIM3_CH2)
 SimpleFOC IN3  ──► Feather TX   (PB10, TIM2_CH3)
-SimpleFOC EN   ──► Feather SS   (PA15)
+SimpleFOC EN   ──► Feather D9   (PB8)
 SimpleFOC GND  ──► Feather GND
 ```
 
