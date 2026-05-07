@@ -14,10 +14,10 @@ void batt_init();
 float batt_read_voltage();
 
 // Returns true if voltage is above cutoff threshold
-bool batt_is_ok();
+bool batt_is_ok(float v);
 
 // Returns true if voltage is below warning threshold (but above cutoff)
-bool batt_is_low();
+bool batt_is_low(float v);
 
 // ============================================================
 // battery.cpp
@@ -53,13 +53,7 @@ float batt_read_voltage() {
     return v_batt;
 }
 
-bool batt_is_ok() {
-    return batt_read_voltage() > BATT_CUTOFF_VOLTS;
-}
-
-bool batt_is_low() {
-    float v = batt_read_voltage();
-    return (v > BATT_CUTOFF_VOLTS) && (v < BATT_WARN_VOLTS);
-}
+bool batt_is_ok(float v)  { return v > BATT_CUTOFF_VOLTS; }
+bool batt_is_low(float v) { return (v > BATT_CUTOFF_VOLTS) && (v < BATT_WARN_VOLTS); }
 
 #endif // BATT_IMPL

@@ -93,8 +93,8 @@ void setup() {
     Serial.println(" V");
 
     if (_batt_voltage < BATT_CUTOFF_VOLTS) {
-        Serial.println("[MAIN] WARNING: Battery below cutoff (bench mode).");
-        // while (true) { delay(1000); }  // disabled for bench testing
+        Serial.println("[MAIN] FATAL: Battery below cutoff. Halting.");
+        while (true) { delay(1000); }
     }
 
     // ── IMU initialisation ────────────────────────────────────
@@ -200,7 +200,7 @@ void loop() {
     // ── 3. Commander (check for serial commands) ──────────────
     command.run();
 
-    // ── 3. Outer PID loop at PID_RATE_HZ ─────────────────────
+    // ── 4. Outer PID loop at PID_RATE_HZ ─────────────────────
     uint32_t now_us = micros();
     if (now_us - _pid_last_us >= (uint32_t)PID_LOOP_PERIOD_US) {
         _pid_last_us = now_us;
@@ -243,17 +243,11 @@ void loop() {
             _batt_voltage = batt_read_voltage();
 
             if (_batt_voltage < BATT_CUTOFF_VOLTS) {
-                // Critical — stop motor and flag
-                // motor.move(0.0f);           // disabled for bench testing (no battery)
-                // motor.disable();
-                // _motor_disabled = true;
-                static bool _bench_batt_warned = false;
-                if (!_bench_batt_warned) {
-                    Serial.println("[BATT] CRITICAL: Below cutoff (bench mode — motor not disabled).");
-                    _bench_batt_warned = true;
-                }
-                // Don't halt — keep telemetry running
-            } else if (batt_is_low() && !_low_batt_warned) {
+                motor.move(0.0f);
+                motor.disable();
+                _motor_disabled = true;
+                Serial.println("[BATT] CRITICAL: Below cutoff. Motor disabled.");
+            } else if (batt_is_low(_batt_voltage) && !_low_batt_warned) {
                 _low_batt_warned = true;
                 Serial.print("[BATT] WARNING: Low battery — ");
                 Serial.print(_batt_voltage, 2);

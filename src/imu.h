@@ -82,9 +82,10 @@ static void _enable_reports() {
     delay(50);
     if (!_bno.enableReport(SH2_GYROSCOPE_CALIBRATED, 10000)) {
         Serial.println("[IMU] WARN: Gyro report enable FAILED");
-    } else {
-        Serial.println("[IMU] Gyro report enabled OK");
     }
+    #if DEBUG_LEVEL >= 2
+    else { Serial.println("[IMU] Gyro report enabled OK"); }
+    #endif
 }
 
 bool imu_init() {
@@ -157,17 +158,12 @@ bool imu_update() {
                 _yaw_rate_deg_s = -(_sensor_value.un.gyroscope.z
                                     * 180.0f / PI);
                 uint8_t new_cal = _sensor_value.status & 0x03;
+                #if DEBUG_LEVEL >= 1
                 if (new_cal != _gyro_cal) {
                     Serial.print("[IMU] Gyro cal changed: ");
                     Serial.println(new_cal);
                 }
-                // Temporary: print raw status every 5s to confirm events arriving
-                static uint32_t _gcal_dbg = 0;
-                if (millis() - _gcal_dbg > 5000) {
-                    _gcal_dbg = millis();
-                    Serial.print("[IMU DBG] Gyro event status=");
-                    Serial.println(_sensor_value.status);
-                }
+                #endif
                 _gyro_cal = new_cal;
                 break;
             }
