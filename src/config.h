@@ -35,7 +35,7 @@
 // MOSI → PB15
 // CS   → PB0  (change if needed)
 // ------------------------------------------------------------
-#define ENCODER_CS_PIN      PB_0
+#define ENCODER_CS_PIN      PB_9   // D10 on Feather silkscreen (PB0 is not exposed)
 
 // ------------------------------------------------------------
 // BNO085 IMU — I2C1 via STEMMA QT (PB6=SCL, PB7=SDA)
