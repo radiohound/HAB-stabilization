@@ -30,10 +30,10 @@
 
 ### SimpleFOC Mini → Feather
 ```
-SimpleFOC IN1  ──► Feather GPIO 6  (PC6,  TIM3_CH1)
-SimpleFOC IN2  ──► Feather GPIO 5  (PC7,  TIM3_CH2)
-SimpleFOC IN3  ──► Feather TX      (PB10, TIM2_CH3)
-SimpleFOC EN   ──► Feather GPIO 9  (PA15)
+SimpleFOC IN1  ──► Feather D6   (PC6,  TIM3_CH1)
+SimpleFOC IN2  ──► Feather D5   (PC7,  TIM3_CH2)
+SimpleFOC IN3  ──► Feather TX   (PB10, TIM2_CH3)
+SimpleFOC EN   ──► Feather SS   (PA15)
 SimpleFOC GND  ──► Feather GND
 ```
 
@@ -44,7 +44,7 @@ Encoder GND   ──► Feather GND
 Encoder MISO  ──► Feather MISO (PB14)
 Encoder MOSI  ──► Feather MOSI (PB15)
 Encoder SCK   ──► Feather SCK  (PB13)
-Encoder CSN   ──► Feather GPIO (PB0)  ← change in config.h if needed
+Encoder CSN   ──► Feather D10  (PB9)
 ```
 
 ### BNO085 IMU
@@ -76,7 +76,9 @@ and update `DRIVER_PIN_IN3` in config.h.
    - Adafruit BNO08x v1.2.3
    - Adafruit BusIO v1.14.5
 4. Build: `Ctrl+Alt+B`
-5. Upload: Put Feather in DFU mode (double-tap reset), then `Ctrl+Alt+U`
+5. Upload: Put Feather in DFU mode — apply 3.3V to the **B0** pin, press Reset,
+   then remove 3.3V. Board enumerates as DFU device. Run `Ctrl+Alt+U`.
+   After upload, press Reset once to boot into firmware.
 
 ---
 
