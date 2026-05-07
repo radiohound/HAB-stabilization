@@ -11,7 +11,7 @@
 | MCU | Adafruit Feather STM32F405 Express | |
 | Driver | SimpleFOC Mini v1.1 | DRV8313, 5A max |
 | Motor | iPower GBM2804H-100T | 12N14P, 10Ω, 154Kv |
-| Encoder | AS5048A (integrated with motor) | SPI, 6 wires |
+| Encoder | AS5048A (integrated with motor) | PWM output, 3 wires |
 | IMU | Adafruit BNO085 #4754 | STEMMA QT |
 | Battery | 6× Energizer L91 AA in series | 9V nominal |
 
@@ -37,14 +37,11 @@ SimpleFOC EN   ──► Feather D9   (PB8)
 SimpleFOC GND  ──► Feather GND
 ```
 
-### AS5048A Encoder (integrated with motor, 6 wires)
+### AS5048A Encoder (PWM output mode, 3 wires)
 ```
-Encoder VCC   ──► Feather 3V
-Encoder GND   ──► Feather GND
-Encoder MISO  ──► Feather MISO (PB14)
-Encoder MOSI  ──► Feather MOSI (PB15)
-Encoder SCK   ──► Feather SCK  (PB13)
-Encoder CSN   ──► Feather D10  (PB9)
+Encoder RED   (VCC) ──► Feather 3V
+Encoder BLACK (GND) ──► Feather GND
+Encoder WHITE (PWM) ──► Feather D11 (PC3)
 ```
 
 ### BNO085 IMU

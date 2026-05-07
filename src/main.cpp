@@ -27,7 +27,6 @@
 
 // ── Includes ─────────────────────────────────────────────────
 #include <Arduino.h>
-#include <SPI.h>
 #include <Wire.h>
 #include <SimpleFOC.h>
 
@@ -39,9 +38,10 @@
 
 // ── SimpleFOC Objects ────────────────────────────────────────
 
-// AS5048A magnetic encoder on SPI2
-// 14-bit resolution, full electrical angle per revolution
-MagneticSensorSPI encoder(ENCODER_CS_PIN, 14, 0x3FFF);
+// AS5048A magnetic encoder — PWM output mode
+// Pulse width 1–1000µs represents 0–360°
+MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 1000);
+void doEncoder() { encoder.handlePWM(); }
 
 // BLDC motor — 7 pole pairs (12N14P)
 BLDCMotor motor(MOTOR_POLE_PAIRS);
@@ -105,11 +105,8 @@ void setup() {
     }
 
     // ── Encoder initialisation ────────────────────────────────
-    // Use SPI2 (PB13/PB14/PB15) — hardware SPI on Feather F405
-    SPI.setMOSI(PB_15);
-    SPI.setMISO(PB_14);
-    SPI.setSCLK(PB_13);
     encoder.init();
+    attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
 
     Serial.print("[ENC] Initial encoder angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);

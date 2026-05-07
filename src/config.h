@@ -29,13 +29,10 @@
 #define VOLTAGE_LIMIT       7.0f
 
 // ------------------------------------------------------------
-// AS5048A Encoder — SPI2
-// SCK  → PB13
-// MISO → PB14
-// MOSI → PB15
-// CS   → PB0  (change if needed)
+// AS5048A Encoder — PWM output (3-wire: VCC, GND, PWM)
+// PWM  → PC3  (D11 on Feather silkscreen)
 // ------------------------------------------------------------
-#define ENCODER_CS_PIN      PB_9   // D10 on Feather silkscreen (PB0 is not exposed)
+#define ENCODER_PWM_PIN     PC_3   // D11
 
 // ------------------------------------------------------------
 // BNO085 IMU — I2C1 via STEMMA QT (PB6=SCL, PB7=SDA)
