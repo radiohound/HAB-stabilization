@@ -118,16 +118,15 @@ void setup() {
     // ── Encoder initialisation ────────────────────────────────
     Serial.println("[ENC] Init start");
     delay(50);
-    digitalWrite(LED_BUILTIN, HIGH);
-    encoder.init();
-    interrupts();                     // pulseIn may have disabled them
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(100);                       // let USB CDC recover
-    Serial.println("[ENC] Init done");
-    delay(50);
+    // Skip encoder.init() — its pulseIn() blocks badly on STM32duino.
+    // Set up the pin and ISR manually; the ISR populates the angle.
+    pinMode(ENCODER_PWM_PIN, INPUT);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
+    delay(50);
+    Serial.println("[ENC] ISR attached");
+    delay(50);
 
-    delay(100);
+    delay(200); // let ISR capture a few pulses
 
     Serial.print("[ENC] Initial angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
