@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: custom-isr-3 <<<");
+    Serial.println(" >>> BUILD: skip-isr-4 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
@@ -128,15 +128,13 @@ void setup() {
     // ── Encoder initialisation ────────────────────────────────
     Serial.println("[ENC] Init start");
     delay(50);
-    // Skip encoder.init() — its pulseIn() blocks badly on STM32duino.
-    // Set up the pin and ISR manually; the ISR populates the angle.
     pinMode(ENCODER_PWM_PIN, INPUT);
-    attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
+    Serial.println("[ENC] pinMode done");
     delay(50);
-    Serial.println("[ENC] ISR attached");
+    // attachInterrupt commented out — testing if it's the blocker
+    // attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
+    Serial.println("[ENC] ISR skip");
     delay(50);
-
-    delay(200); // let ISR capture a few pulses
 
     Serial.print("[ENC] Initial angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
