@@ -39,8 +39,8 @@
 // ── SimpleFOC Objects ────────────────────────────────────────
 
 // AS5048A magnetic encoder — PWM output mode
-// Range needs measuring on the bench — see custom ISR below
-MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 1024);
+// Calibrated on bench: pulse width 2us–903us = 0°–360°
+MagneticSensorPWM encoder(ENCODER_PWM_PIN, 2, 903);
 
 // Custom ISR — measure pulse width directly, don't touch encoder object
 volatile uint32_t _enc_pulse_start_us = 0;
@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: enc-cal-mode-12 <<<");
+    Serial.println(" >>> BUILD: enc-calibrated-13 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
@@ -176,10 +176,6 @@ void setup() {
     Serial.println("[MOTOR] Running alignment... (do not move payload)");
     motor.init();
     motor.initFOC();
-    // Disable motor so user can manually rotate to characterize encoder
-    motor.disable();
-    _motor_disabled = true;
-    Serial.println("[MOTOR] Disabled for encoder calibration. Rotate shaft by hand.");
 
     if (motor.motor_status == FOCMotorStatus::motor_ready) {
         _motor_ok = true;
