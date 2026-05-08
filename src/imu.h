@@ -99,16 +99,19 @@ bool imu_init() {
         return false;
     }
 
+    Serial.println("[DBG] post begin_I2C");
     _bno.wasReset(); // clear the stale reset flag set by begin_I2C
+    Serial.println("[DBG] post wasReset");
     delay(100);
+    Serial.println("[DBG] pre enable_reports");
     _enable_reports();
-    delay(500); // let BNO085 queue data before first read — prevents STM32F4 I2C1 clock-stretch hang
+    Serial.println("[DBG] post enable_reports");
+    delay(500);
+    Serial.println("[DBG] post delay 500");
     _healthy = true;
-    _last_update_ms = millis();  // Bug #2 fix: was 0, causing immediate false-unhealthy at boot
+    _last_update_ms = millis();
 
-    #if DEBUG_LEVEL >= 2
     Serial.println("[IMU] BNO085 initialised OK");
-    #endif
     return true;
 }
 
