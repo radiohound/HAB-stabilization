@@ -117,12 +117,12 @@ void setup() {
 
     // ── Encoder initialisation ────────────────────────────────
     Serial.println("[ENC] Init start");
-    Serial.flush();
+    delay(50);
     digitalWrite(LED_BUILTIN, HIGH);  // LED ON during encoder init
     encoder.init();
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("[ENC] Init done");
-    Serial.flush();
+    delay(50);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
 
     delay(100);
@@ -130,7 +130,7 @@ void setup() {
     Serial.print("[ENC] Initial angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
     Serial.println(" deg");
-    Serial.flush();
+    delay(50);
 
     // ── Motor driver initialisation ───────────────────────────
     driver.voltage_power_supply = SUPPLY_VOLTAGE;

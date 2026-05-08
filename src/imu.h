@@ -102,13 +102,13 @@ bool imu_init() {
     _bno.wasReset();
     delay(100);
     _enable_reports();
-    Serial.flush();
+    delay(50);
     delay(500);
     _healthy = true;
     _last_update_ms = millis();
 
     Serial.println("[IMU] BNO085 initialised OK");
-    Serial.flush();
+    delay(50);
     return true;
 }
 
