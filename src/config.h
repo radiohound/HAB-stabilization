@@ -7,7 +7,7 @@
 // ------------------------------------------------------------
 // Motor — iPower GBM2804H-100T
 // ------------------------------------------------------------
-#define MOTOR_POLE_PAIRS    18      // physically 7 PP, but SimpleFOC's encoder-based estimate gives 18 — use that for correct commutation
+#define MOTOR_POLE_PAIRS    7       // 12N14P = 7 pole pairs
 #define MOTOR_PHASE_R       10.0f   // phase resistance, ohms
 #define MOTOR_KV            154.0f  // RPM/V
 

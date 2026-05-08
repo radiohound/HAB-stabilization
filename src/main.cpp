@@ -42,16 +42,8 @@
 // Calibrated on bench: pulse width 2us–903us = 0°–360°
 MagneticSensorPWM encoder(ENCODER_PWM_PIN, 2, 903);
 
-// Custom ISR — measure pulse width directly, don't touch encoder object
-volatile uint32_t _enc_pulse_start_us = 0;
-volatile uint32_t _enc_pulse_width_us = 0;
-void doEncoder() {
-    if (digitalRead(ENCODER_PWM_PIN) == HIGH) {
-        _enc_pulse_start_us = micros();
-    } else if (_enc_pulse_start_us != 0) {
-        _enc_pulse_width_us = micros() - _enc_pulse_start_us;
-    }
-}
+// Use SimpleFOC's built-in PWM handler
+void doEncoder() { encoder.handlePWM(); }
 
 // BLDC motor — 7 pole pairs (12N14P)
 BLDCMotor motor(MOTOR_POLE_PAIRS);
@@ -103,7 +95,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: pp-18-test-14 <<<");
+    Serial.println(" >>> BUILD: simplefoc-isr-15 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
@@ -128,10 +120,11 @@ void setup() {
     // ── Encoder initialisation ────────────────────────────────
     Serial.println("[ENC] Init start");
     delay(200);
-    // Skip pinMode entirely — testing attachInterrupt only
-    attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
+    encoder.init();
     delay(200);
-    Serial.println("[ENC] attachInterrupt done");
+    encoder.enableInterrupt(doEncoder);
+    delay(200);
+    Serial.println("[ENC] init+enableInterrupt done");
     delay(200);
 
     Serial.print("[ENC] Initial angle: ");
@@ -295,22 +288,13 @@ void loop() {
 
         telem_update(td);
 
-        // Raw encoder PWM diagnostic — track ABSOLUTE min/max since boot
+        // Print encoder angle every 5s for diagnostics
         static uint32_t _enc_dbg_ms = 0;
-        static uint32_t _enc_min = 999999, _enc_max = 0;
-        if (_enc_pulse_width_us > 0 && _enc_pulse_width_us < 10000) {
-            if (_enc_pulse_width_us < _enc_min) _enc_min = _enc_pulse_width_us;
-            if (_enc_pulse_width_us > _enc_max) _enc_max = _enc_pulse_width_us;
-        }
-        if (millis() - _enc_dbg_ms >= 2000) {
+        if (millis() - _enc_dbg_ms >= 5000) {
             _enc_dbg_ms = millis();
-            Serial.print("[ENC RAW] last=");
-            Serial.print(_enc_pulse_width_us);
-            Serial.print("us  ABSmin=");
-            Serial.print(_enc_min);
-            Serial.print("us  ABSmax=");
-            Serial.print(_enc_max);
-            Serial.println("us");
+            Serial.print("[ENC] angle=");
+            Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
+            Serial.println(" deg");
         }
     }
 }
