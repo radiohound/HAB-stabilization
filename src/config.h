@@ -19,10 +19,10 @@
 // TX = PB10 (TIM2_CH3) — Arduino pin 1
 // D9 = PB8
 // ------------------------------------------------------------
-#define DRIVER_PIN_IN1      6      // D6
-#define DRIVER_PIN_IN2      5      // D5
-#define DRIVER_PIN_IN3      1      // TX (PB10)
-#define DRIVER_PIN_EN       9      // D9
+#define DRIVER_PIN_IN1      6      // D6  (PC6, TIM3_CH1)
+#define DRIVER_PIN_IN2      5      // D5  (PC7, TIM3_CH2)
+#define DRIVER_PIN_IN3      12     // D12 (PC2) — moved off TX/PB10 (UART conflict)
+#define DRIVER_PIN_EN       9      // D9  (PB8)
 
 // Power supply voltage (6× AA L91 = 9.0V nominal)
 #define SUPPLY_VOLTAGE      9.0f

@@ -95,7 +95,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: simplefoc-isr-15 <<<");
+    Serial.println(" >>> BUILD: in3-d12-16 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
