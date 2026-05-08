@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: encoder-debug-2 <<<");
+    Serial.println(" >>> BUILD: custom-isr-3 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
