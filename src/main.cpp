@@ -116,17 +116,21 @@ void setup() {
     }
 
     // ── Encoder initialisation ────────────────────────────────
-    Serial.println("[DBG] encoder.init() start");
+    Serial.println("[ENC] Init start");
+    Serial.flush();
+    digitalWrite(LED_BUILTIN, HIGH);  // LED ON during encoder init
     encoder.init();
-    Serial.println("[DBG] encoder.init() done");
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("[ENC] Init done");
+    Serial.flush();
     attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
-    Serial.println("[DBG] attachInterrupt done");
 
-    delay(100); // give the ISR time to capture at least one pulse
+    delay(100);
 
-    Serial.print("[ENC] Initial encoder angle: ");
+    Serial.print("[ENC] Initial angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
     Serial.println(" deg");
+    Serial.flush();
 
     // ── Motor driver initialisation ───────────────────────────
     driver.voltage_power_supply = SUPPLY_VOLTAGE;
