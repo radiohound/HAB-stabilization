@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: enc-raw-debug-11 <<<");
+    Serial.println(" >>> BUILD: enc-cal-mode-12 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
@@ -176,6 +176,10 @@ void setup() {
     Serial.println("[MOTOR] Running alignment... (do not move payload)");
     motor.init();
     motor.initFOC();
+    // Disable motor so user can manually rotate to characterize encoder
+    motor.disable();
+    _motor_disabled = true;
+    Serial.println("[MOTOR] Disabled for encoder calibration. Rotate shaft by hand.");
 
     if (motor.motor_status == FOCMotorStatus::motor_ready) {
         _motor_ok = true;
@@ -295,24 +299,22 @@ void loop() {
 
         telem_update(td);
 
-        // Raw encoder PWM diagnostic — print min/max observed every 5s
+        // Raw encoder PWM diagnostic — track ABSOLUTE min/max since boot
         static uint32_t _enc_dbg_ms = 0;
         static uint32_t _enc_min = 999999, _enc_max = 0;
-        if (_enc_pulse_width_us > 0 && _enc_pulse_width_us < 999999) {
+        if (_enc_pulse_width_us > 0 && _enc_pulse_width_us < 10000) {
             if (_enc_pulse_width_us < _enc_min) _enc_min = _enc_pulse_width_us;
             if (_enc_pulse_width_us > _enc_max) _enc_max = _enc_pulse_width_us;
         }
-        if (millis() - _enc_dbg_ms >= 5000) {
+        if (millis() - _enc_dbg_ms >= 2000) {
             _enc_dbg_ms = millis();
             Serial.print("[ENC RAW] last=");
             Serial.print(_enc_pulse_width_us);
-            Serial.print("us min=");
+            Serial.print("us  ABSmin=");
             Serial.print(_enc_min);
-            Serial.print("us max=");
+            Serial.print("us  ABSmax=");
             Serial.print(_enc_max);
             Serial.println("us");
-            _enc_min = 999999;
-            _enc_max = 0;
         }
     }
 }
