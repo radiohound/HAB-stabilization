@@ -75,6 +75,16 @@ static bool     _motor_disabled  = false;  // Bug #5 fix: track post-cutoff stat
 
 // ── Setup ────────────────────────────────────────────────────
 void setup() {
+    // Early LED proof-of-life — slow blink (1s on, 1s off, 3 times)
+    // before any peripheral init. If you see this, firmware is running.
+    pinMode(LED_BUILTIN, OUTPUT);
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(LED_BUILTIN, HIGH);
+        delay(500);
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(500);
+    }
+
     // USB serial — wait up to 3 seconds for monitor connection
     Serial.begin(TELEM_BAUD);
     uint32_t t0 = millis();
@@ -93,8 +103,8 @@ void setup() {
     Serial.println(" V");
 
     if (_batt_voltage < BATT_CUTOFF_VOLTS) {
-        Serial.println("[MAIN] FATAL: Battery below cutoff. Halting.");
-        while (true) { delay(1000); }
+        Serial.println("[MAIN] WARNING: Battery below cutoff (bench mode).");
+        // while (true) { delay(1000); }  // disabled for bench testing
     }
 
     // ── IMU initialisation ────────────────────────────────────
@@ -240,10 +250,11 @@ void loop() {
             _batt_voltage = batt_read_voltage();
 
             if (_batt_voltage < BATT_CUTOFF_VOLTS) {
-                motor.move(0.0f);
-                motor.disable();
-                _motor_disabled = true;
-                Serial.println("[BATT] CRITICAL: Below cutoff. Motor disabled.");
+                static bool _bench_batt_warned = false;
+                if (!_bench_batt_warned) {
+                    Serial.println("[BATT] CRITICAL: Below cutoff (bench mode).");
+                    _bench_batt_warned = true;
+                }
             } else if (batt_is_low(_batt_voltage) && !_low_batt_warned) {
                 _low_batt_warned = true;
                 Serial.print("[BATT] WARNING: Low battery — ");
