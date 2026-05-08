@@ -198,7 +198,7 @@ void setup() {
     Wire.end();
     delay(50);
     Wire.begin();
-    Wire.setClock(100000);
+    Wire.setClock(50000);
     imu_reset_health_timer();
     _start_ms = millis();
     Serial.println("[MAIN] System ready. Entering control loop.");

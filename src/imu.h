@@ -90,12 +90,22 @@ static void _enable_reports() {
 
 bool imu_init() {
     Wire.begin();
-    Wire.setClock(100000);
+    Wire.setClock(50000);   // 50kHz — BNO085 is fussy on STM32F4 I2C1
+    delay(200);              // let chip settle after power/Wire init
 
-    if (!_bno.begin_I2C(BNO085_ADDR, &Wire)) {
-        #if DEBUG_LEVEL >= 1
-        Serial.println("[IMU] ERROR: BNO085 not found. Check wiring.");
-        #endif
+    bool found = false;
+    for (int attempt = 0; attempt < 3; attempt++) {
+        if (_bno.begin_I2C(BNO085_ADDR, &Wire)) {
+            found = true;
+            break;
+        }
+        Serial.print("[IMU] BNO085 begin attempt ");
+        Serial.print(attempt + 1);
+        Serial.println(" failed, retrying...");
+        delay(200);
+    }
+    if (!found) {
+        Serial.println("[IMU] ERROR: BNO085 not found after 3 attempts.");
         return false;
     }
 
