@@ -118,9 +118,11 @@ void setup() {
     // ── Encoder initialisation ────────────────────────────────
     Serial.println("[ENC] Init start");
     delay(50);
-    digitalWrite(LED_BUILTIN, HIGH);  // LED ON during encoder init
+    digitalWrite(LED_BUILTIN, HIGH);
     encoder.init();
+    interrupts();                     // pulseIn may have disabled them
     digitalWrite(LED_BUILTIN, LOW);
+    delay(100);                       // let USB CDC recover
     Serial.println("[ENC] Init done");
     delay(50);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
