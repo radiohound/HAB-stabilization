@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: skip-isr-4 <<<");
+    Serial.println(" >>> BUILD: bare-prints-5 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
@@ -127,14 +127,12 @@ void setup() {
 
     // ── Encoder initialisation ────────────────────────────────
     Serial.println("[ENC] Init start");
-    delay(50);
-    pinMode(ENCODER_PWM_PIN, INPUT);
-    Serial.println("[ENC] pinMode done");
-    delay(50);
-    // attachInterrupt commented out — testing if it's the blocker
-    // attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
-    Serial.println("[ENC] ISR skip");
-    delay(50);
+    delay(200);
+    Serial.println("[ENC] After delay 200");
+    delay(200);
+    Serial.println("[ENC] After delay 400");
+    delay(200);
+    // skipping pinMode/attachInterrupt entirely
 
     Serial.print("[ENC] Initial angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
