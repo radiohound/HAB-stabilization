@@ -32,7 +32,7 @@
 // AS5048A Encoder — PWM output (3-wire: VCC, GND, PWM)
 // PWM  → PC3  (D11 on Feather silkscreen)
 // ------------------------------------------------------------
-#define ENCODER_PWM_PIN     PC_3   // D11
+#define ENCODER_PWM_PIN     11     // D11 (Arduino pin number, not PC_3)
 
 // ------------------------------------------------------------
 // BNO085 IMU — I2C1 via STEMMA QT (PB6=SCL, PB7=SDA)
