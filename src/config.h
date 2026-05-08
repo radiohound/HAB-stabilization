@@ -13,15 +13,16 @@
 
 // ------------------------------------------------------------
 // SimpleFOC Mini — 3-PWM pins (Feather STM32F405)
-// IN1 → PC6  (TIM3_CH1)
-// IN2 → PC7  (TIM3_CH2)
-// IN3 → PB10 (TIM2_CH3)
-// EN  → PA15
+// Use Arduino pin numbers (PC_x format hangs pinMode on this core)
+// D6 = PC6 (TIM3_CH1)
+// D5 = PC7 (TIM3_CH2)
+// TX = PB10 (TIM2_CH3) — Arduino pin 1
+// D9 = PB8
 // ------------------------------------------------------------
-#define DRIVER_PIN_IN1      PC_6
-#define DRIVER_PIN_IN2      PC_7
-#define DRIVER_PIN_IN3      PB_10
-#define DRIVER_PIN_EN       PB_8    // D9 on Feather silkscreen (PA15/SS not exposed)
+#define DRIVER_PIN_IN1      6      // D6
+#define DRIVER_PIN_IN2      5      // D5
+#define DRIVER_PIN_IN3      1      // TX (PB10)
+#define DRIVER_PIN_EN       9      // D9
 
 // Power supply voltage (6× AA L91 = 9.0V nominal)
 #define SUPPLY_VOLTAGE      9.0f

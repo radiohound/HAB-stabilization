@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: arduino-pin-8 <<<");
+    Serial.println(" >>> BUILD: motor-pins-arduino-9 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
