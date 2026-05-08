@@ -115,8 +115,13 @@ void setup() {
     }
 
     // ── Encoder initialisation ────────────────────────────────
+    Serial.println("[DBG] encoder.init() start");
     encoder.init();
+    Serial.println("[DBG] encoder.init() done");
     attachInterrupt(digitalPinToInterrupt(ENCODER_PWM_PIN), doEncoder, CHANGE);
+    Serial.println("[DBG] attachInterrupt done");
+
+    delay(100); // give the ISR time to capture at least one pulse
 
     Serial.print("[ENC] Initial encoder angle: ");
     Serial.print(encoder.getAngle() * RAD_TO_DEG, 1);
