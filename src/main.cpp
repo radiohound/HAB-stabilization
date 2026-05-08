@@ -39,8 +39,8 @@
 // ── SimpleFOC Objects ────────────────────────────────────────
 
 // AS5048A magnetic encoder — PWM output mode
-// AS5048A: 4097µs period, pulse 1–4096µs ≈ 0–360°
-MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 4096);
+// Range needs measuring on the bench — see custom ISR below
+MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 1024);
 
 // Custom ISR — measure pulse width directly, don't touch encoder object
 volatile uint32_t _enc_pulse_start_us = 0;
@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: pwm-range-fix-10 <<<");
+    Serial.println(" >>> BUILD: enc-raw-debug-11 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
@@ -294,5 +294,25 @@ void loop() {
         td.imu_ok         = _imu_ok;
 
         telem_update(td);
+
+        // Raw encoder PWM diagnostic — print min/max observed every 5s
+        static uint32_t _enc_dbg_ms = 0;
+        static uint32_t _enc_min = 999999, _enc_max = 0;
+        if (_enc_pulse_width_us > 0 && _enc_pulse_width_us < 999999) {
+            if (_enc_pulse_width_us < _enc_min) _enc_min = _enc_pulse_width_us;
+            if (_enc_pulse_width_us > _enc_max) _enc_max = _enc_pulse_width_us;
+        }
+        if (millis() - _enc_dbg_ms >= 5000) {
+            _enc_dbg_ms = millis();
+            Serial.print("[ENC RAW] last=");
+            Serial.print(_enc_pulse_width_us);
+            Serial.print("us min=");
+            Serial.print(_enc_min);
+            Serial.print("us max=");
+            Serial.print(_enc_max);
+            Serial.println("us");
+            _enc_min = 999999;
+            _enc_max = 0;
+        }
     }
 }
