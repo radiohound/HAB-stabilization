@@ -41,7 +41,17 @@
 // AS5048A magnetic encoder — PWM output mode
 // Pulse width 1–1000µs represents 0–360°
 MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 1000);
-void doEncoder() { encoder.handlePWM(); }
+
+// Custom ISR — measure pulse width directly, don't touch encoder object
+volatile uint32_t _enc_pulse_start_us = 0;
+volatile uint32_t _enc_pulse_width_us = 0;
+void doEncoder() {
+    if (digitalRead(ENCODER_PWM_PIN) == HIGH) {
+        _enc_pulse_start_us = micros();
+    } else if (_enc_pulse_start_us != 0) {
+        _enc_pulse_width_us = micros() - _enc_pulse_start_us;
+    }
+}
 
 // BLDC motor — 7 pole pairs (12N14P)
 BLDCMotor motor(MOTOR_POLE_PAIRS);
