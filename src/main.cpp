@@ -39,8 +39,8 @@
 // ── SimpleFOC Objects ────────────────────────────────────────
 
 // AS5048A magnetic encoder — PWM output mode
-// Pulse width 1–1000µs represents 0–360°
-MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 1000);
+// AS5048A: 4097µs period, pulse 1–4096µs ≈ 0–360°
+MagneticSensorPWM encoder(ENCODER_PWM_PIN, 1, 4096);
 
 // Custom ISR — measure pulse width directly, don't touch encoder object
 volatile uint32_t _enc_pulse_start_us = 0;
@@ -103,7 +103,7 @@ void setup() {
     Serial.println("============================================");
     Serial.println(" HAB Payload Stabilization System v1.0");
     Serial.println(" K6ATV — April 2026");
-    Serial.println(" >>> BUILD: motor-pins-arduino-9 <<<");
+    Serial.println(" >>> BUILD: pwm-range-fix-10 <<<");
     Serial.println("============================================");
 
     // ── Battery check ─────────────────────────────────────────
