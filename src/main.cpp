@@ -35,6 +35,7 @@
 #include "heading_control.h"
 #include "battery.h"
 #include "telemetry.h"
+#include "dfu_jump.h"   // 'D' command -> enter DFU without grounding B0
 
 // ── SimpleFOC Objects ────────────────────────────────────────
 
@@ -58,6 +59,7 @@ BLDCDriver3PWM driver(DRIVER_PIN_IN1,
 Commander command(Serial);
 
 void onMotor(char* cmd) { command.motor(&motor, cmd); }
+void onDfu(char* cmd) { (void)cmd; jumpToBootloader(); }  // 'D' -> ROM DFU
 void onTarget(char* cmd) {
     float new_target = atof(cmd);
     hc_set_target(new_target);
@@ -192,6 +194,7 @@ void setup() {
     //   M           — motor command (SimpleFOC Commander)
     command.add('T', onTarget, "target heading deg");
     command.add('M', onMotor,  "motor");
+    command.add('D', onDfu,    "enter DFU bootloader");
 
     // Reset I2C peripheral after motor init — STM32F4 I2C1 can get stuck
     // during the long blocking FOC alignment sequence

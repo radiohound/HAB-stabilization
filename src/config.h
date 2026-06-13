@@ -14,15 +14,22 @@
 // ------------------------------------------------------------
 // SimpleFOC Mini — 3-PWM pins (Feather STM32F405)
 // Use Arduino pin numbers (PC_x format hangs pinMode on this core)
-// D6 = PC6 (TIM3_CH1)
-// D5 = PC7 (TIM3_CH2)
-// TX = PB10 (TIM2_CH3) — Arduino pin 1
-// D9 = PB8
+// Pin map matches the AS-BUILT wiring to the SimpleFOC Mini:
+//   Mini IN1 <- D9  (PB8, TIM4_CH3)
+//   Mini IN2 <- D10 (PB9, TIM4_CH4)
+//   Mini IN3 <- D5  (PC7, TIM3_CH2)
+//   Mini EN  <- D6  (PC6, digital enable)
+//
+// IMPORTANT: all three IN pins MUST be on a hardware timer channel.
+// D12 (PC2) has NO timer on the STM32F405 — it cannot output PWM, so
+// it must never be used for an IN pin. All three pins below are
+// PWM-capable (verified against PeripheralPins.c). EN can be any
+// digital pin. Phase order (IN1/2/3) only sets spin direction.
 // ------------------------------------------------------------
-#define DRIVER_PIN_IN1      6      // D6  (PC6, TIM3_CH1)
-#define DRIVER_PIN_IN2      5      // D5  (PC7, TIM3_CH2)
-#define DRIVER_PIN_IN3      12     // D12 (PC2) — moved off TX/PB10 (UART conflict)
-#define DRIVER_PIN_EN       9      // D9  (PB8)
+#define DRIVER_PIN_IN1      9      // D9  (PB8, TIM4_CH3)
+#define DRIVER_PIN_IN2      10     // D10 (PB9, TIM4_CH4)
+#define DRIVER_PIN_IN3      5      // D5  (PC7, TIM3_CH2)
+#define DRIVER_PIN_EN       6      // D6  (PC6) digital enable
 
 // Power supply voltage (6× AA L91 = 9.0V nominal)
 #define SUPPLY_VOLTAGE      9.0f
