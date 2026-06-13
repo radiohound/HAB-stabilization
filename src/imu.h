@@ -88,24 +88,61 @@ static void _enable_reports() {
     #endif
 }
 
-bool imu_init() {
-    Wire.begin();
-    Wire.setClock(50000);   // 50kHz — BNO085 is fussy on STM32F4 I2C1
-    delay(200);              // let chip settle after power/Wire init
+// I2C pins on this Feather: SDA = PB7 (pin 14), SCL = PB6 (pin 15)
+#define IMU_I2C_SDA_PIN  PB7
+#define IMU_I2C_SCL_PIN  PB6
 
+// Free a stuck I2C bus. If the BNO085 was mid-transaction at reset it can
+// hold SDA low forever, jamming the bus so begin_I2C() always fails (the
+// exact intermittent "BNO085 not found" we saw — only a power cycle fixed
+// it). This manually clocks SCL up to 9 times to flush the stuck byte,
+// then issues a STOP, releasing SDA. SCL is driven push-pull (we are the
+// only master); SDA is emulated open-drain so we never fight the slave.
+static void _i2c_bus_recover() {
+    Wire.end();
+    delay(5);
+    pinMode(IMU_I2C_SCL_PIN, OUTPUT);
+    pinMode(IMU_I2C_SDA_PIN, INPUT_PULLUP);
+    digitalWrite(IMU_I2C_SCL_PIN, HIGH);
+    delayMicroseconds(10);
+    for (int i = 0; i < 9 && digitalRead(IMU_I2C_SDA_PIN) == LOW; i++) {
+        digitalWrite(IMU_I2C_SCL_PIN, LOW);  delayMicroseconds(10);
+        digitalWrite(IMU_I2C_SCL_PIN, HIGH); delayMicroseconds(10);
+    }
+    // STOP: SDA low->high while SCL is high
+    pinMode(IMU_I2C_SDA_PIN, OUTPUT);
+    digitalWrite(IMU_I2C_SDA_PIN, LOW);  delayMicroseconds(10);
+    digitalWrite(IMU_I2C_SCL_PIN, HIGH); delayMicroseconds(10);
+    digitalWrite(IMU_I2C_SDA_PIN, HIGH); delayMicroseconds(10);
+    pinMode(IMU_I2C_SDA_PIN, INPUT_PULLUP);
+    delay(5);
+}
+
+bool imu_init() {
     bool found = false;
-    for (int attempt = 0; attempt < 3; attempt++) {
+    const int MAX_ATTEMPTS = 8;
+    for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        // Recover + fully re-init the bus on every attempt so a wedged
+        // bus or stuck I2C peripheral can't block all retries.
+        _i2c_bus_recover();
+        Wire.begin();
+        Wire.setClock(50000);   // 50kHz — BNO085 is fussy on STM32F4 I2C1
+        // BNO085 needs time to boot after power-on; give attempt 0 extra.
+        delay(attempt == 0 ? 500 : 250);
+
         if (_bno.begin_I2C(BNO085_ADDR, &Wire)) {
             found = true;
             break;
         }
         Serial.print("[IMU] BNO085 begin attempt ");
         Serial.print(attempt + 1);
+        Serial.print("/");
+        Serial.print(MAX_ATTEMPTS);
         Serial.println(" failed, retrying...");
-        delay(200);
+        delay(150);
     }
     if (!found) {
-        Serial.println("[IMU] ERROR: BNO085 not found after 3 attempts.");
+        Serial.println("[IMU] ERROR: BNO085 not found after retries.");
         return false;
     }
 

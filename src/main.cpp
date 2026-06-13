@@ -167,8 +167,14 @@ void setup() {
     motor.useMonitoring(Serial);
     motor.monitor_variables = 0; // disable automatic monitoring
 
-    // Initialise motor — this runs electrical angle alignment
-    Serial.println("[MOTOR] Running alignment... (do not move payload)");
+    // Initialise motor — this runs live electrical-angle alignment.
+    // NOTE: we tried freezing the alignment (hard-coded zero angle) to
+    // avoid the boot twitch, but the PWM encoder's boot reading isn't
+    // consistent enough, so a fixed offset made it hunt. Live alignment
+    // re-measures each boot and performs better. This is fine for flight:
+    // alignment only runs at power-on (on the ground), never in flight.
+    // (Proper fix for a twitch-free, frozen alignment = SPI encoder mode.)
+    Serial.println("[MOTOR] Running alignment... (keep arm free)");
     motor.init();
     motor.initFOC();
 

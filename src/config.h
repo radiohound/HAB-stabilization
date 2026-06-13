@@ -8,6 +8,10 @@
 // Motor — iPower GBM2804H-100T
 // ------------------------------------------------------------
 #define MOTOR_POLE_PAIRS    7       // 12N14P = 7 pole pairs
+// (Frozen FOC alignment was tried — zero angle ≈3.94 from a clean run —
+//  but the PWM encoder's boot reading varies, so it hunted. Reverted to
+//  live alignment. Revisit with SPI encoder mode if a frozen, twitch-
+//  free boot is wanted.)
 #define MOTOR_PHASE_R       10.0f   // phase resistance, ohms
 #define MOTOR_KV            154.0f  // RPM/V
 
