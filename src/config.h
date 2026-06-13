@@ -81,6 +81,10 @@
 //   Add Ki slowly to eliminate steady-state error.
 //   Add Kd to dampen overshoot.
 // ------------------------------------------------------------
+// Tuning note (bench, light payload): this raw-D config held heading
+// best — slightly jerky but responsive. Filtering D added lag and made
+// it worse; D=0 caused it to swing/oscillate. Re-tune with flight mass
+// (camera+batteries) — the added inertia should reduce the jerkiness.
 #define PID_KP              0.50f
 #define PID_KI              0.02f
 #define PID_KD              0.08f
