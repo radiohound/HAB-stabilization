@@ -13,7 +13,9 @@ block and regenerate:
 Rev 1.1 (June 2026): Corrected encoder interface to reflect AS-BUILT state
 (AS5048A on PWM, not SPI), corrected SimpleFOC motor pin map to match
 config.h (IN1->D9, IN2->D10, IN3->D5, EN->D6), added a "Known Issue / Next
-Upgrade" note documenting the PWM->SPI plan after the June 2026 launch.
+Upgrade" note documenting the PWM->SPI plan. NOTE: the platform has NOT
+been flown; a June 2026 launch attempt was scrubbed and the encoder issue
+was found during bench testing.
 """
 
 from reportlab.lib.pagesizes import letter
@@ -212,9 +214,10 @@ def build(path):
     # ── Status note up top (most important for readers after the launch) ─────
     e.append(Spacer(1, 8))
     e.append(note_box(
-        "Status \u2014 June 2026 launch &amp; encoder upgrade in progress",
+        "Status \u2014 not yet flown; encoder upgrade in progress",
         [
-            "This revision documents the system <b>as actually built and flown</b>. "
+            "This revision documents the system <b>as built</b>. The platform has "
+            "not yet flown &mdash; a June 2026 launch attempt was scrubbed before flight. "
             "The AS5048A magnetic encoder is presently read in <b>PWM single-wire "
             "mode</b> (the cable that shipped pre-installed with the motor). The "
             "encoder hardware also supports SPI, and the <b>next planned upgrade is "
@@ -369,13 +372,13 @@ def build(path):
     # ── Known issue / next upgrade — the new content ─────────────────────────
     e.append(Paragraph("7. Known Issue / Next Upgrade \u2014 Encoder PWM \u2192 SPI", S_H1))
     e.append(note_box(
-        "Lesson learned \u2014 June 2026 launch",
+        "Lesson learned \u2014 bench testing, June 2026",
         [
             "The AS5048A shipped with a pre-installed <b>PWM output cable</b>, so the "
-            "encoder was wired and flown in PWM mode to save bring-up time. Bench "
+            "encoder was wired in PWM mode to save bring-up time. Bench "
             "testing of the PWM readings looked accurate enough at a glance, so it "
-            "appeared safe to fly that way.",
-            "<b>In flight / testing this proved insufficient.</b> A gimbal motor "
+            "appeared safe to proceed that way.",
+            "<b>On the bench this proved insufficient.</b> A gimbal motor "
             "run as a fine-positioning actuator at near-zero RPM needs very exact, "
             "low-latency angle data to commutate smoothly. The PWM single-wire "
             "decode adds enough timing jitter and latency that the control loop "
@@ -386,11 +389,11 @@ def build(path):
             "MagneticSensorSPI in firmware. SPI gives the deterministic, "
             "high-resolution angle reads the FOC loop needs and is expected to "
             "substantially smooth rotation. This is the primary planned change "
-            "before the next flight.",
+            "before the first flight.",
         ]))
 
     # ── Remaining work ───────────────────────────────────────────────────────
-    e.append(Paragraph("8. Remaining Work Before Next Flight", S_H1))
+    e.append(Paragraph("8. Remaining Work Before First Flight", S_H1))
     work = [
         ["Area", "Task", "Priority"],
         ["Firmware", "Convert encoder PWM \u2192 SPI (MagneticSensorSPI, SPI2 + CSN)", "High"],
